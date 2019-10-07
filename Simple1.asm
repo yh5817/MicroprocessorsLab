@@ -8,9 +8,9 @@
 
 start
 	movlw 	0x0
-	movwf	TRISC, ACCESS	    ; Port C all outputs
+	movwf	TRISE, ACCESS	    ; Port C all outputs
 	bra 	test
-loop	movff 	0x06, PORTC
+loop	movff 	0x06, PORTE
 	incf 	0x06, W, ACCESS
 test	movwf	0x06, ACCESS	    ; Test for end of loop condition
 	movlw 	0x63
