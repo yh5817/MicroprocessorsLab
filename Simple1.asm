@@ -6,83 +6,29 @@
 	org 0x100		    ; Main code starts here at address 0x100
 
 start
-         ; External memory code ;
-	movlw 0x00                  
-	movwf TRISD, ACCESS         ; Port D all outputs
+	call SPI_MasterInit
+	movlw  0xaa
+	call SPI_Mastertransmit
+		
+loop 
+ 	bra  loop
 	
-	movlw 0x0f
-	movwf PORTD, ACCESS         ; Set OE1, 2 and CP1, 2 high
+SPI_MasterInit                      ; Set Clock edge to negative
+	bcf    SSP2STAT, CKE
+	;MSSP enable; CKP=1; SPI master, clock=Fosc/64 (1MHZ)
+	movlw  (1<<SSPEN) | (1<<CKP) | (0x02)
+	movwf  SSP2CON1
+	; SDO2 output : SCK2 output
+	bcf    TRISD, SDO2
+	bcf    TRISD, SCK2
+	return
 	
-	clrf TRISE                  ; Clear PORTE
-		 
-	movlw  0x20                 ; initial value
-	movwf  LATE, ACCESS
-	
-	movlw 0x0b                  ; lower CP1
-	movwf PORTD, ACCESS
-	
-	movlw high(0x10)
-	movwf 0x10
-	movlw low(0x10)
-	movwf 0x11
-	call bigdelay
-	
-	movlw 0x0f
-	movwf PORTD, ACCESS        ; high CP1
-	
-	setf TRISE        ; set TRISE high
-	
-	movlw 0x0e
-	movwf PORTD, ACCESS         ; lower OE1
-
-	; setup Port C ;
-	movlw  0x00
-	movwf TRISC, ACCESS
-	movff PORTE, PORTC
-	
-	; second memory chip ;
-	movlw 0x00                  
-	movwf TRISD, ACCESS         ; Port D all outputs
-	movlw 0x0f
-	movwf PORTD, ACCESS         ; Set OE2 and CP2 high
-	
-	clrf TRISE                  ; Clear PORTE
-		 
-	movlw  0x20                 ; initial value
-	movwf  LATE, ACCESS
-	
-	movlw 0x07                  ; lower CP2
-	movwf PORTD, ACCESS
-	
-	movlw high(0x10)
-	movwf 0x10
-	movlw low(0x10)
-	movwf 0x11
-	call bigdelay
-	
-	movlw 0x0f
-	movwf PORTD, ACCESS        ; high CP2
-	
-	setf TRISE        ; set TRISE high
-	
-	movlw 0x0d
-	movwf PORTD, ACCESS    ; lower OE2   
-
-	; setup Port F ;
-	movlw  0x00
-	movwf TRISF, ACCESS
-	movff PORTE, PORTF
-	
-	movlw 0x0f
-	movwf PORTD, ACCESS
-	
-	goto  0x0                   
-
-bigdelay   
-	movlw 0x00
-dloop	decf  0x11, f
-	subwfb 0x10, f
-	bc dloop
-        return 
+SPI_Mastertransmit                  ; Start transmission of data (held in W)
+	movwf  SSP2BUF
+wait_Transmit                       ;  Wait for transmission to complete
+	btfss  PIR2, SSP2IF
+	bra    wait_Transmit
+	bcf    PIR2, SSP2IF         ; clear interrupt flag
+	return
 	
 	end
