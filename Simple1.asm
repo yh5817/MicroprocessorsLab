@@ -1,7 +1,8 @@
 	#include p18f87k22.inc
 
 	extern	UART_Setup, UART_Transmit_Message  ; external UART subroutines
-	extern  LCD_Setup, LCD_Write_Message, LCD_Clear_Message, LCD_Send_Byte_I, LCD_delay_x4us	    ; external LCD subroutines
+	extern  LCD_Setup, LCD_Write_Message, LCD_Clear_Message 
+	extern	LCD_Line2	    ; external LCD subroutines
 	
 acs0	udata_acs   ; reserve data space in access ram
 counter	    res 1   ; reserve one byte for a counter variable
@@ -46,16 +47,7 @@ loop 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
 	lfsr	FSR2, myArray
 	call	LCD_Write_Message
 	
-	
-	movlw	b'11000000'	; Move to the second line - 40H
-	call	LCD_Send_Byte_I
-	movlw	.10		; wait 40us
-	call	LCD_delay_x4us
-	
-	movlw	b'00000110'	; entry mode incr by 1 no shift
-	call	LCD_Send_Byte_I
-	movlw	.10		; wait 40us
-	call	LCD_delay_x4us
+	call	LCD_Line2
 	
 	movlw	.12	; output message to LCD (leave out "\n")
 	lfsr	FSR2, 0x40d
