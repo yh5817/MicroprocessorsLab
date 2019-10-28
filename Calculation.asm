@@ -1,6 +1,7 @@
 #include p18f87k22.inc
 	 
 	 global Conversion
+	 global bit1, bit2, bit3, bit4
 
 acs1    udata_acs   ; named variables in access ram
 k0  res 1                           ; reserve one byte for A0 variable
@@ -15,6 +16,7 @@ A6  res 1
 A7  res 1
 A8  res 1
 A9  res 1
+A10 res 1
 bit1 res 1
 bit2 res 1
 bit3 res 1
@@ -30,7 +32,8 @@ Conversion
     
          movff ADRESH, A1 ; move the most significant of ADC measurement bit in A1 (?)
          movff ADRESL, A0                ; ~ least ~ in A0
-    
+ 	 
+	 
          movf  k0, w
          mulwf A0                        ; k0 * A0 ->
                                     ; PRODH:PRODL
@@ -66,12 +69,14 @@ Conversion
          addwfc A8, 0, 0                 ; A7 + A8
          movwf A8                        ; move the result to A8
     
-         movf A9, w                      ; move A9 to w
-         addlw 0x00                      ; A9 add nothing
+         movlw 0x00
+	 movwf A10
+	 movf A9, w                     ; move A9 to w
+         addwfc A10, 0, 0                      ; A9 add nothing
          movwf bit1                      ; first decimal result 
      
      ; Multiply by 10
-         movf 0A, w                      ; move 0A to w
+         movlw 0x0A
 	 mulwf A2                        ; 0A * A2
 	 movff PRODL, A2
 	 movff PRODH, A3
@@ -81,23 +86,23 @@ Conversion
 	 movff PRODH, A5
 	
 	 mulwf A8                        ; 0A * A8
-	 movff PRODH, A7
-	 movff PRODL, A8
+	 movff PRODH, A8
+	 movff PRODL, A7
 	
        	 movf A3, w
-	 addwfc A4                       ; A4 += A3
+	 addwfc A4, 0, 0                       ; A4 += A3
 	 movwf A4
 	
 	 movf A7, w 
-	 addwfc A5                       ; A7 += A5
+	 addwfc A5, 0, 0                       ; A7 += A5
 	 movwf A7
 	
 	 movf A8, w
-	 addlw 0x00                      ; A8 += 00
+	 addwfc A10, 0, 0                      ; A8 += 00
 	 movwf bit2
  	
     ; multiply by 10
-         movf 0A, w
+         movlw 0x0A
 	 mulwf A2                        ; A2 * 0A
 	 movff PRODL, A2
 	 movff PRODH, A3
@@ -111,19 +116,19 @@ Conversion
 	 movff PRODH, A8
  	
 	 movf A4, w
-	 addwfc A3                       ; A4 += A3
+	 addwfc A3, 0, 0                       ; A4 += A3
 	 movwf A4
 	
 	 movf A7, w
-	 addwfc A5                       ; A7 += A5
+	 addwfc A5, 0, 0                       ; A7 += A5
 	 movwf A7
 	
 	 movf A8, w
-	 addlw 0x00                      ; A8 + 00
+	 addwfc A10, 0, 0                      ; A8 + 00
 	 movwf bit3
 	
     ; Multiply by 10
-         movf 0A, w                       
+         movlw 0x0A                       
          mulwf A2                        ; A2 * 0A
 	 movff PRODL, A2
 	 movff PRODH, A3
@@ -137,16 +142,22 @@ Conversion
 	 movff PRODH, A8
 	
 	 movf A4, w
-	 addwfc A3                       ; A4 += A3
+	 addwfc A3, 0, 0                       ; A4 += A3
 	 movwf A4
 	
 	 movf A7, w
-	 addwfc A5                       ; A7 += A5
+	 addwfc A5, 0, 0                       ; A7 += A5
 	 movwf A7
 	
 	 movf A8, w
-	 addlw 0x00                      ; A8 + 00
+	 addwfc A10, 0, 0                      ; A8 + 00
 	 movwf bit4
+	 
+	 movlw 0x30
+	 addwf bit1, 1, 1
+	 addwf bit2, 1, 1
+	 addwf bit3, 1, 1
+	 addwf bit4, 1, 1
 	 return
 	
      GOTO $                          ; loop forever
