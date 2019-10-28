@@ -1,8 +1,9 @@
 #include p18f87k22.inc
 
     global  LCD_Setup, LCD_Write_Message, LCD_Write_Hex
-    global  LCD_Setup, LCD_Write_Message, LCD_Clear_Message
-    global  LCD_Line2	    ; external LCD subroutines
+    global  LCD_Clear_Message;, LCD_Line2	    ; external LCD subroutines
+    global  LCD_Display_digits
+    extern  bit1, bit2, bit3, bit4
 
 acs0    udata_acs   ; named variables in access ram
 LCD_cnt_l   res 1   ; reserve 1 byte for variable LCD_cnt_l
@@ -33,8 +34,8 @@ LCD_Setup
 	call	LCD_Send_Byte_I
 	movlw	.10		; wait 40us
 	call	LCD_delay_x4us
-	movlw	b'00101000'	; repeat, 2 line display 5x8 dot characters
-	call	LCD_Send_Byte_I
+	;movlw	b'00101000'	; repeat, 2 line display 5x8 dot characters
+	;call	LCD_Send_Byte_I
 	movlw	.10		; wait 40us
 	call	LCD_delay_x4us
 	movlw	b'00001111'	; display on, cursor on, blinking on
@@ -83,7 +84,18 @@ LCD_Loop_message
 	decfsz  LCD_counter
 	bra	LCD_Loop_message
 	return
-
+	
+LCD_Display_digits
+	movf   bit1, w
+	call   LCD_Send_Byte_D
+	movf   bit2, w
+	call   LCD_Send_Byte_D
+        movf   bit3, w
+	call   LCD_Send_Byte_D
+	movf   bit4, w
+	call   LCD_Send_Byte_D
+	return
+	
 LCD_Send_Byte_I		    ; Transmits byte stored in W to instruction reg
 	movwf   LCD_tmp
 	swapf   LCD_tmp,W   ; swap nibbles, high nibble goes first
@@ -161,18 +173,18 @@ lcdlp1	decf 	LCD_cnt_l,F	; no carry when 0x00 -> 0xff
 	bc 	lcdlp1		; carry, then loop again
 	return			; carry reset so return
 
-LCD_Line2
-	movlw	b'11000000'	; Move to the second line - 40H
-	call	LCD_Send_Byte_I
-	movlw	.10		; wait 40us
-	call	LCD_delay_x4us
+;LCD_Line2
+	;movlw	b'11000000'	; Move to the second line - 40H
+	;call	LCD_Send_Byte_I
+	;movlw	.10		; wait 40us
+	;call	LCD_delay_x4us
 	
-	movlw	b'00000110'	; entry mode incr by 1 no shift
-	call	LCD_Send_Byte_I
-	movlw	.10		; wait 40us
-	call	LCD_delay_x4us
+	;movlw	b'00000110'	; entry mode incr by 1 no shift
+	;call	LCD_Send_Byte_I
+	;movlw	.10		; wait 40us
+	;call	LCD_delay_x4us
 
-	return
+	;return
 	
     end
 
