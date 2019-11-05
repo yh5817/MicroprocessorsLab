@@ -3,7 +3,7 @@
     global  LCD_Setup, LCD_Write_Message, LCD_Write_Hex
     global  LCD_Clear_Message;, LCD_Line2	    ; external LCD subroutines
     global  LCD_Display_digits
-    extern  bit1, bit2, bit3, bit4
+    ;extern  RTCC_Setup
 
 acs0    udata_acs   ; named variables in access ram
 LCD_cnt_l   res 1   ; reserve 1 byte for variable LCD_cnt_l
@@ -34,8 +34,8 @@ LCD_Setup
 	call	LCD_Send_Byte_I
 	movlw	.10		; wait 40us
 	call	LCD_delay_x4us
-	;movlw	b'00101000'	; repeat, 2 line display 5x8 dot characters
-	;call	LCD_Send_Byte_I
+	movlw	b'00101000'	; repeat, 2 line display 5x8 dot characters
+	call	LCD_Send_Byte_I
 	movlw	.10		; wait 40us
 	call	LCD_delay_x4us
 	movlw	b'00001111'	; display on, cursor on, blinking on
@@ -86,14 +86,48 @@ LCD_Loop_message
 	return
 	
 LCD_Display_digits
-	movf   bit1, w
-	call   LCD_Send_Byte_D
-	movf   bit2, w
-	call   LCD_Send_Byte_D
-        movf   bit3, w
-	call   LCD_Send_Byte_D
-	movf   bit4, w
-	call   LCD_Send_Byte_D
+	call	LCD_Line1
+	bsf     RTCCFG, RTCPTR1
+        bsf     RTCCFG, RTCPTR0 
+	movf    RTCVALL, w	    ; year
+	call    LCD_Write_Hex
+	movlw	'/'
+	call	LCD_Send_Byte_D
+	movf    RTCVALH, w	    
+	movf    RTCVALL, w	    ; day
+	call    LCD_Write_Hex
+	movlw	'/'
+	call	LCD_Send_Byte_D
+	movf    RTCVALH, w	    ; month
+	call    LCD_Write_Hex
+	call	LCD_Line2	    ; move to line 2
+	movf    RTCVALL, w	    ; hours
+	call    LCD_Write_Hex
+	movlw	':'
+	call	LCD_Send_Byte_D
+	movf    RTCVALH, w	    ; weekday
+	call    LCD_Write_Hex	    
+	movlw	':'
+	call	LCD_Send_Byte_D
+	movf    RTCVALL, w	    ; seconds
+	call    LCD_Write_Hex
+	movlw	':'
+	call	LCD_Send_Byte_D
+	movf    RTCVALH, w	    ; minutes
+	call    LCD_Write_Hex
+	return
+	
+LCD_Line1
+	movlw	b'10000000'	; Move to the first line - 00H
+	call	LCD_Send_Byte_I
+	movlw	.10		; wait 40us
+	call	LCD_delay_x4us
+	return
+LCD_Line2
+	movlw	b'11000000'	; Move to the second line - 40H
+	call	LCD_Send_Byte_I
+	movlw	.10		; wait 40us
+	call	LCD_delay_x4us
 	return
 	
 LCD_Send_Byte_I		    ; Transmits byte stored in W to instruction reg
@@ -172,20 +206,6 @@ lcdlp1	decf 	LCD_cnt_l,F	; no carry when 0x00 -> 0xff
 	subwfb 	LCD_cnt_h,F	; no carry when 0x00 -> 0xff
 	bc 	lcdlp1		; carry, then loop again
 	return			; carry reset so return
-
-;LCD_Line2
-	;movlw	b'11000000'	; Move to the second line - 40H
-	;call	LCD_Send_Byte_I
-	;movlw	.10		; wait 40us
-	;call	LCD_delay_x4us
-	
-	;movlw	b'00000110'	; entry mode incr by 1 no shift
-	;call	LCD_Send_Byte_I
-	;movlw	.10		; wait 40us
-	;call	LCD_delay_x4us
-
-	;return
-	
     end
 
 

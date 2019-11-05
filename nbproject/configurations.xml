@@ -16,7 +16,8 @@
       <itemPath>config.asm</itemPath>
       <itemPath>UART.asm</itemPath>
       <itemPath>LCD.asm</itemPath>
-      <itemPath>ADC.asm</itemPath>
+      <itemPath>Calculation.asm</itemPath>
+      <itemPath>RTCC.asm</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -72,7 +73,7 @@
         <property key="ToolFirmwareFilePath"
                   value="Press to browse for a specific firmware version"/>
         <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
-        <property key="debugoptions.useswbreakpoints" value="false"/>
+        <property key="debugoptions.useswbreakpoints" value="true"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
         <property key="memories.aux" value="false"/>
         <property key="memories.bootflash" value="false"/>

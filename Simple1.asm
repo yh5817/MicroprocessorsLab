@@ -1,10 +1,8 @@
 	#include p18f87k22.inc
 
-	extern	UART_Setup, UART_Transmit_Message   ; external UART subroutines
-	extern  ADC_Setup, ADC_Read		    ; external ADC routines
 	extern  LCD_Setup, LCD_Write_Message, LCD_Clear_Message 
-	extern	LCD_Write_Hex;, LCD_Line2	    ; external LCD subroutines
-	extern  Conversion, LCD_Display_digits 
+	extern  LCD_Display_digits, LCD_Write_Hex
+	extern  RTCC_Setup
 	
 acs0	udata_acs   ; reserve data space in access ram
 acs1    udata_acs
@@ -28,54 +26,18 @@ main	code
 	; ******* Programme FLASH read Setup Code ***********************
 setup	bcf	EECON1, CFGS	; point to Flash program memory  
 	bsf	EECON1, EEPGD 	; access Flash program memory
-	call	UART_Setup	; setup UART
 	call	LCD_Setup	; setup LCD
-	call	ADC_Setup	; setup ADC
+	call    RTCC_Setup      ; setup Clock
 	goto	start
 
 	; ******* Main programme ****************************************
-;start 	lfsr	FSR0, myArray	; Load FSR0 with address in RAM	
-;	movlw	upper(myTable)	; address of data in PM
-;	movwf	TBLPTRU		; load upper bits to TBLPTRU
-;	movlw	high(myTable)	; address of data in PM
-;	movwf	TBLPTRH		; load high byte to TBLPTRH
-;	movlw	low(myTable)	; address of data in PM
-;	movwf	TBLPTRL		; load low byte to TBLPTRL
-;	movlw	myTable_l	; bytes to read
-;	movwf 	counter		; our counter register
-;loop 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
-;	movff	TABLAT, POSTINC0; move data from TABLAT to (FSR0), inc FSR0	
-;	decfsz	counter		; count down to zero
-;	bra	loop		; keep going until finished
-		
-	;movlw	.12	; output message to LCD (leave out "\n")
-	;lfsr	FSR2, myArray
-	
-	;call	LCD_Line2
-	
-	;movlw	.12	; output message to LCD (leave out "\n")
-	;lfsr	FSR2, 0x40d
-	;call	LCD_Display_digits   	
-	
-
-	;movlw	myTable_l	; output message to UART
-	;lfsr	FSR2, myArray
-	;call	UART_Transmit_Message	
 start	
-measure_loop
-	call	ADC_Read	
-	;movf	ADRESH,W
-	;call	LCD_Write_Hex
-	;movf	ADRESL,W
-	;call	LCD_Write_Hex
-     	call    Conversion   
-	call	LCD_Display_digits
-	goto	measure_loop		; goto current line in code
-	
-
+        call    LCD_Display_digits
 	; a delay subroutine if you need one, times around loop in delay_count
+	movlw	0xFF
+	movwf	delay_count
 delay	decfsz	delay_count	; decrement until zero
 	bra delay
-	return
+	bra start
 
 	end
