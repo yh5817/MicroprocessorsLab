@@ -105,16 +105,17 @@ LCD_Display_digits
 	call    LCD_Write_Hex
 	movlw	':'
 	call	LCD_Send_Byte_D
+	call    LCD_Line_WDY        ; move to line 1 rear
 	movf    RTCVALH, w	    ; weekday
 	call    LCD_Write_Hex	    
-	movlw	':'
-	call	LCD_Send_Byte_D
+	call    LCD_Line_sec
 	movf    RTCVALL, w	    ; seconds
 	call    LCD_Write_Hex
-	movlw	':'
-	call	LCD_Send_Byte_D
+	call    LCD_Line_min
 	movf    RTCVALH, w	    ; minutes
 	call    LCD_Write_Hex
+	movlw	':'
+	call	LCD_Send_Byte_D
 	return
 	
 LCD_Line1
@@ -123,6 +124,28 @@ LCD_Line1
 	movlw	.10		; wait 40us
 	call	LCD_delay_x4us
 	return
+	
+LCD_Line_WDY
+	movlw	b'10001011'	; Move to the first line - 00H
+	call	LCD_Send_Byte_I
+	movlw	.10		; wait 40us
+	call	LCD_delay_x4us
+	return
+	
+LCD_Line_min
+	movlw	b'11000011'	; Move to the first line - 00H
+	call	LCD_Send_Byte_I
+	movlw	.10		; wait 40us
+	call	LCD_delay_x4us
+	return
+	
+LCD_Line_sec
+	movlw	b'11000110'	; Move to the first line - 00H
+	call	LCD_Send_Byte_I
+	movlw	.10		; wait 40us
+	call	LCD_delay_x4us
+	return
+	
 LCD_Line2
 	movlw	b'11000000'	; Move to the second line - 40H
 	call	LCD_Send_Byte_I

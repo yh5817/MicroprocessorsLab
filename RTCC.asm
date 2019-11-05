@@ -12,15 +12,12 @@ var2  res 1
     
 RTCC    code   
 RTCC_Setup
-
-    
-
-    ;bcf   ALRMCFG, ALRMEN   ; Disable alarm
     
     ;**********************************
     ; Enable RTCC Timer Access
     ;**********************************
-
+    bcf     ALRMCFG, ALRMEN               ; disable alarm
+    
     movlb   0x0F
     bcf     INTCON, GIE
     movlw   0x55
@@ -37,7 +34,7 @@ RTCC_Setup
     bsf	    RTCCFG, RTCOE                 ; set RTCC output enable 
 
     ;**********************************
-    ; write to the RTCC timer
+    ; write to the Clock Value Resgister 
     ;**********************************
     
     bsf     RTCCFG, RTCPTR1
@@ -76,14 +73,45 @@ RTCC_Setup
     movwf   EECON2
     movlw   0xAA
     movwf   EECON2
-    bcf     RTCCFG, RTCWREN   ; Clear RTCWREN bit 
+    bcf     RTCCFG, RTCWREN                 ; Clear RTCWREN bit 
     return
     
 RTCC_Alarm
-    bsf   ALRMCFG, ALRMEN   ; Enable alarm
+    bcf   RTCCFG, RTCSYNC                   
+    
+    bsf   ALRMCFG, ALRMEN                   ; Enable alarm
+    bsf   ALRMCFG, CHIME                    ; Enable chime 
     
     bcf   ALRMCFG, AMASK0
     bsf   ALRMCFG, AMASK1
     bsf   ALRMCFG, AMASK2
-    bcf   ALRMCFG, AMASK3
+    bcf   ALRMCFG, AMASK3                   ; set to once a day
+    
+     ;**********************************
+    ; write to the Alarm Value Register 
+    ;**********************************
+    
+    bsf   ALRMCFG, ALRMPTR1
+    bcf   ALRMCFG, ALRMPTR0
+    movlw  0x11
+    movwf  ALRMVALH                          ; set alarm month to November
+    
+    movlw  0x05
+    movwf  ALRMVALL                          ; set alarm day to 5
+    
+    bcf   ALRMCFG, ALRMPTR1
+    bsf   ALRMCFG, ALRMPTR0
+    movlw  0x2                               
+    movwf  ALRMVALH                          ; set alarm weekday to Tuesday
+    
+    movlw  0x02
+    movwf  ALRMVALL                          ; set alarm hour to 2
+    
+    bcf   ALRMCFG, ALRMPTR1
+    bcf   ALRMCFG, ALRMPTR0    
+    movlw  0x20
+    movwf  ALRMVALH                          ; set alarm minute to 20
+    
+    movlw  0x30
+    movwf  ALRMVALL                          ; set alarm second to 30
     end
