@@ -2,7 +2,7 @@
 
 	extern  LCD_Setup, LCD_Write_Message, LCD_Clear_Message 
 	extern  LCD_Display_digits, LCD_Write_Hex
-	extern  RTCC_Setup
+	extern  RTCC_Setup, RTCC_Alarm
 	
 acs0	udata_acs   ; reserve data space in access ram
 acs1    udata_acs
@@ -28,6 +28,7 @@ setup	bcf	EECON1, CFGS	; point to Flash program memory
 	bsf	EECON1, EEPGD 	; access Flash program memory
 	call	LCD_Setup	; setup LCD
 	call    RTCC_Setup      ; setup Clock
+	call    RTCC_Alarm
 	goto	start
 
 	; ******* Main programme ****************************************

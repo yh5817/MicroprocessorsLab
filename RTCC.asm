@@ -1,6 +1,6 @@
 #include p18f87k22.inc
     
-    global RTCC_Setup
+    global RTCC_Setup, RTCC_Alarm
 	
     org  0x10
 ;	goto start
@@ -18,9 +18,9 @@ RTCC_Setup
     ;**********************************
     bcf     ALRMCFG, ALRMEN               ; disable alarm
     
-    movlb   0x0F
-    bcf     INTCON, GIE
-    movlw   0x55
+    movlb   0x0F                       
+    bcf     INTCON, GIE                   ; enable access the BSR is used to select the GPR bank (example: bsf with a=1
+    movlw   0x55                          ;erase flash programme memory 
     movwf   EECON2
     movlw   0xAA
     movwf   EECON2
@@ -29,7 +29,7 @@ RTCC_Setup
 	 
     clrf    ANCON2
     bcf	    TRISG, TRISG4
-    bsf     PADCFG1, RTSECSEL1
+    bcf     PADCFG1, RTSECSEL1            ;RTCC alarm pulse is selected for RTCC  pin
     bcf     PADCFG1, RTSECSEL0
     bsf	    RTCCFG, RTCOE                 ; set RTCC output enable 
 
@@ -45,7 +45,7 @@ RTCC_Setup
      
     bsf     RTCCFG, RTCPTR1
     bcf     RTCCFG, RTCPTR0 
-    movlw   0x04                           ; set day to 4
+    movlw   0x07                          ; set day to 4
     movwf   RTCVALL
      
     movlw   0x11                           ; set month to November
@@ -53,18 +53,18 @@ RTCC_Setup
      
     bcf     RTCCFG, RTCPTR1
     bsf     RTCCFG, RTCPTR0 
-    movlw   0x00                           ; initial hour
+    movlw   0x14                           ; initial hour
     movwf   RTCVALL
      
-    movlw   0x1                            ; set weekday 
+    movlw   0x4                            ; set weekday 
     movwf   RTCVALH
      
     bcf     RTCCFG, RTCPTR1
     bcf     RTCCFG, RTCPTR0 
-    movlw   0x20                            ; set second
+    movlw   0x30                            ; set second
     movwf   RTCVALL
      
-    movlw   0x30                            ; set minute 
+    movlw   0x04                            ; set minute 
     movwf   RTCVALH
     ;**********************************
     ; Disable RTCC timer access
@@ -82,9 +82,9 @@ RTCC_Alarm
     bsf   ALRMCFG, ALRMEN                   ; Enable alarm
     bsf   ALRMCFG, CHIME                    ; Enable chime 
     
-    bcf   ALRMCFG, AMASK0
+    bsf   ALRMCFG, AMASK0
     bsf   ALRMCFG, AMASK1
-    bsf   ALRMCFG, AMASK2
+    bcf   ALRMCFG, AMASK2
     bcf   ALRMCFG, AMASK3                   ; set to once a day
     
      ;**********************************
@@ -93,25 +93,42 @@ RTCC_Alarm
     
     bsf   ALRMCFG, ALRMPTR1
     bcf   ALRMCFG, ALRMPTR0
+    
+    movlw  0x07
+    movwf  ALRMVALL                          ; set alarm day to 5
+    
     movlw  0x11
     movwf  ALRMVALH                          ; set alarm month to November
     
-    movlw  0x05
-    movwf  ALRMVALL                          ; set alarm day to 5
-    
-    bcf   ALRMCFG, ALRMPTR1
-    bsf   ALRMCFG, ALRMPTR0
-    movlw  0x2                               
-    movwf  ALRMVALH                          ; set alarm weekday to Tuesday
-    
-    movlw  0x02
+    ;bcf   ALRMCFG, ALRMPTR1
+    ;bsf   ALRMCFG, ALRMPTR0
+    movlw  0x14
     movwf  ALRMVALL                          ; set alarm hour to 2
     
-    bcf   ALRMCFG, ALRMPTR1
-    bcf   ALRMCFG, ALRMPTR0    
-    movlw  0x20
+    movlw  0x4                               
+    movwf  ALRMVALH                          ; set alarm weekday to Tuesday
+    
+    ;bcf   ALRMCFG, ALRMPTR1
+    ;bcf   ALRMCFG, ALRMPTR0 
+    movlw  0x00
+    movwf  ALRMVALL                          ; set alarm second to 30
+    
+    movlw  0x05
     movwf  ALRMVALH                          ; set alarm minute to 20
     
-    movlw  0x30
-    movwf  ALRMVALL                          ; set alarm second to 30
+      
+    movlw  b'11111111'  
+    movwf  ALRMRPT                            ;REPEAT ALARM for 255 more times 
+   
+    clrf  TRISD                               ; set PORTD as all outputs
+    bcf	  LATD, ACCESS
+    bsf   PIE3, RTCCIE                       ; enable RTCC interrupt
+    bsf   INTCON, GIE                        ; enable all interrupt
+    return
+    
+int_1   code  0x0008
+    btfss  PIR3, RTCCIF                      ; check if alarm triggers an interrupt
+    retfie  FAST
+    bcf    PIR3, RTCCIF
+    retfie  FAST
     end
