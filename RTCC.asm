@@ -3,10 +3,8 @@
     global RTCC_Setup, RTCC_Alarm
 	
     org  0x10
-;	goto start
-;start
 
-acs0    udata_acs  
+acs0	    udata_acs  
 var1  res 1 
 var2  res 1
     
@@ -114,7 +112,7 @@ RTCC_Alarm
     movwf  ALRMVALL                          ; set alarm second to 30
     
     movlw  0x05
-    movwf  ALRMVALH                          ; set alarm minute to 20
+    movwf  ALRMVALH                          ; set alarm minute to 05
     
       
     movlw  b'11111111'  
@@ -126,9 +124,9 @@ RTCC_Alarm
     bsf   INTCON, GIE                        ; enable all interrupt
     return
     
-int_1   code  0x0008
-    btfss  PIR3, RTCCIF                      ; check if alarm triggers an interrupt
-    retfie  FAST
-    bcf    PIR3, RTCCIF
-    retfie  FAST
+;int_1   code  0x0008
+;    btfss  PIR3, RTCCIF                      ; check if alarm triggers an interrupt
+;    retfie  FAST
+;    bcf    PIR3, RTCCIF
+;    retfie  FAST
     end
