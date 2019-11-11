@@ -1,7 +1,8 @@
 #include p18f87k22.inc
 	 
-	 global Conversion
-	 global bit1, bit2, bit3, bit4
+	  global question
+	 ; global conversion 
+	 ; global bit1, bit2, bit3, bit4
 
 acs1    udata_acs   ; named variables in access ram
 k0  res 1                           ; reserve one byte for A0 variable
@@ -22,7 +23,27 @@ bit2 res 1
 bit3 res 1
 bit4 res 1
  
+year    res 1
+month   res 1
+day     res 1
+ 
 Calculation code                    ; let linker place main program
+ 
+question
+    bsf     RTCCFG, RTCPTR1
+    bsf     RTCCFG, RTCPTR0
+       
+    movf    RTCVALL, w
+    movwf   year                     ; store current year value
+     
+    bsf     RTCCFG, RTCPTR1
+    bcf     RTCCFG, RTCPTR0 
+    movf    RTCVALL, w
+    movwf   day                      ; store current day value
+    movf    RTCVALH, w
+    movwf   month                    ; store current month value 
+    return
+    
  
 Conversion
          movlw high(0x418A)              ; store k value in A0 and A1

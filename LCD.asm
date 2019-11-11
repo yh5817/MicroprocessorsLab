@@ -15,6 +15,7 @@ LCD_counter res 1   ; reserve 1 byte for counting through nessage
 acs_ovr	access_ovr
 LCD_hex_tmp res 1   ; reserve 1 byte for variable LCD_hex_tmp	
 
+ 
 	constant    LCD_E=5	; LCD enable bit
     	constant    LCD_RS=4	; LCD register select bit
 
@@ -91,15 +92,18 @@ LCD_Display_digits
         bsf     RTCCFG, RTCPTR0 
 	movf    RTCVALL, w	    ; year
 	call    LCD_Write_Hex
+	; movwf   year
 	movlw	'/'
 	call	LCD_Send_Byte_D
 	movf    RTCVALH, w	    
 	movf    RTCVALL, w	    ; day
 	call    LCD_Write_Hex
+	; movwf   day
 	movlw	'/'
 	call	LCD_Send_Byte_D
 	movf    RTCVALH, w	    ; month
 	call    LCD_Write_Hex
+	; movwf   month
 	call	LCD_Line2	    ; move to line 2
 	movf    RTCVALL, w	    ; hours
 	call    LCD_Write_Hex
