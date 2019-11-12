@@ -22,11 +22,13 @@ s_loop  decfsz  tens     ; decrement the content in tens, skip if 0
 	return
 	
 wait_press
-	movlw 0x0
-	movwf zero
+	movlw 0x00
+	movwf zero      ; correct column
+	
 	call keypad_decode
-	cpfseq zero, 0  ; compare v_row with zero, skip if no row press (v_row = 0)
-	bra pwm_stop
+
+	cpfseq zero, 0   ; compare Acol with 4
+	bra  pwm_stop
 	bra wait_press
 	return
 
@@ -42,9 +44,9 @@ keypad_decode
 	movlw 0x0f  ; set RE0-3 high, RE4-7 low 00001111
 	movwf LATE, ACCESS
 	
-	movlw high(0x01)
+	movlw high(0xff)
 	movwf 0x10
-	movlw low (0x01)
+	movlw low (0xff)
 	movwf 0x11
 	call bigdelay	
 	
@@ -60,9 +62,9 @@ keypad_decode
 	movlw 0xf0     ; set RE0-3 low, RE4-7 high 11110000
 	movwf LATE, ACCESS
 	
-	movlw high(0x01)
+	movlw high(0xff)
 	movwf 0x10
-	movlw low (0x01)
+	movlw low (0xff)
 	movwf 0x11
 	call bigdelay	
 	
@@ -91,7 +93,7 @@ keypad_decode
 	;store the decode value of column in v_col
 col_1   movlw 0x1
 	movwf v_col
-	bra decode_r
+        bra decode_r
 	
 col_2   movlw 0x2
 	movwf v_col

@@ -159,7 +159,7 @@ LCD_Line2
 	
 LCD_Display_Questions
 	call    LCD_Line1
-	movlw   0x100
+	movlw   0x10
 	call    LCD_Write_Hex
 	movlw   '+'
 	call	LCD_Send_Byte_D
@@ -171,6 +171,43 @@ LCD_Display_Questions
 	call    LCD_Write_Hex
 	movlw   '='
 	call	LCD_Send_Byte_D
+	
+	call    LCD_Line2
+	movlw   'A'
+	call	LCD_Send_Byte_D
+	movlw   '.'
+	call	LCD_Send_Byte_D
+	movlw   0x70
+	call    LCD_Write_Hex
+	call    LCD_Line_B
+	movlw   'B'
+	call	LCD_Send_Byte_D
+	movlw   '.'
+	call	LCD_Send_Byte_D
+	movlw   0x80
+	call    LCD_Write_Hex
+	call    LCD_Line_C
+	movlw   'C'
+	call	LCD_Send_Byte_D
+	movlw   '.'
+	call	LCD_Send_Byte_D
+	movlw   0x60
+	call    LCD_Write_Hex
+	
+	return
+	
+LCD_Line_B
+	movlw	b'11000101'	; Move to the first line - 45H
+	call	LCD_Send_Byte_I
+	movlw	.10		; wait 40us
+	call	LCD_delay_x4us
+	return
+	
+LCD_Line_C
+	movlw	b'11001010'	; Move to the first line - 45H
+	call	LCD_Send_Byte_I
+	movlw	.10		; wait 40us
+	call	LCD_delay_x4us
 	return
 	
 LCD_Send_Byte_I		    ; Transmits byte stored in W to instruction reg
