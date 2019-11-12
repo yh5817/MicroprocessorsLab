@@ -1,13 +1,6 @@
-;set up timer 2---timer 2 control register (page 201)
-bcf T2CON T2CKPS0            ; Timer2 Clock Prescale Select bits
-bcf T2CON T2CKPS1            ;00 = Prescaler is 1, 01 = Prescaler is 4, 1x = Prescaler is 16
-
-bsf T2CON TMR2ON            ;=1 timer is on
-
-bsf T2CON T2OUTPS3          ; Timer2 Output Postscale Select bits
-bsf T2CON T2OUTPS2
-bsf T2CON T2OUTPS1
-bsf T2CON T2OUTPS0
+;set PWM period by writing to PR2 register
+movlw  b'11111111' 
+movwf  PR2
 
 ;configure CCP2 control register--- CCPxCON
 bcf CCP2CON CCP2M0         ; PxA and PxC are active-high; PxB and PxD are active-high
@@ -22,7 +15,7 @@ bsf CCP2CON DC2B1
 bcf CCP2CON P2M1           ;single output is selected
 bcf CCP2CON P2M0        
 
-;set PWM period by writing to PR2 register
+
 
 ;SET duty cycle value--- CCPRxL and CCPRxH
 movlw	b'11111111'        ; bit 2-9 of PWM duty cycle
@@ -31,4 +24,14 @@ movwf CCPR2L
 movlw b'00000000'
 movwf CCPR2H             ; duty cycle buffer register
 
+;set up timer 2---timer 2 control register (page 201)
 
+bcf T2CON T2CKPS0            ; Timer2 Clock Prescale Select bits
+bcf T2CON T2CKPS1            ;00 = Prescaler is 1, 01 = Prescaler is 4, 1x = Prescaler is 16
+
+bsf T2CON TMR2ON             ;=1 timer is on
+
+bsf T2CON T2OUTPS3           ; Timer2 Output Postscale Select bits
+bsf T2CON T2OUTPS2
+bsf T2CON T2OUTPS1
+bsf T2CON T2OUTPS0
