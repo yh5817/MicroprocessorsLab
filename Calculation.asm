@@ -1,8 +1,7 @@
 #include p18f87k22.inc
 	 
 	  global question
-	 ; global conversion 
-	 ; global bit1, bit2, bit3, bit4
+	  global year, month, day
 
 acs1    udata_acs   ; named variables in access ram
 k0  res 1                           ; reserve one byte for A0 variable

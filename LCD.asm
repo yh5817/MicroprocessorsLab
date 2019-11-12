@@ -1,9 +1,9 @@
 #include p18f87k22.inc
 
     global  LCD_Setup, LCD_Write_Message, LCD_Write_Hex
-    global  LCD_Clear_Message;, LCD_Line2	    ; external LCD subroutines
-    global  LCD_Display_digits
-    ;extern  RTCC_Setup
+    global  LCD_Clear_Message	    
+    global  LCD_Display_digits, LCD_Display_Questions
+    extern  year, month, day
 
 acs0    udata_acs   ; named variables in access ram
 LCD_cnt_l   res 1   ; reserve 1 byte for variable LCD_cnt_l
@@ -92,18 +92,18 @@ LCD_Display_digits
         bsf     RTCCFG, RTCPTR0 
 	movf    RTCVALL, w	    ; year
 	call    LCD_Write_Hex
-	; movwf   year
+
 	movlw	'/'
 	call	LCD_Send_Byte_D
 	movf    RTCVALH, w	    
 	movf    RTCVALL, w	    ; day
 	call    LCD_Write_Hex
-	; movwf   day
+
 	movlw	'/'
 	call	LCD_Send_Byte_D
 	movf    RTCVALH, w	    ; month
 	call    LCD_Write_Hex
-	; movwf   month
+
 	call	LCD_Line2	    ; move to line 2
 	movf    RTCVALL, w	    ; hours
 	call    LCD_Write_Hex
@@ -155,6 +155,22 @@ LCD_Line2
 	call	LCD_Send_Byte_I
 	movlw	.10		; wait 40us
 	call	LCD_delay_x4us
+	return
+	
+LCD_Display_Questions
+	call    LCD_Line1
+	movlw   0x100
+	call    LCD_Write_Hex
+	movlw   '+'
+	call	LCD_Send_Byte_D
+	movlw   0x20
+	call    LCD_Write_Hex
+	movlw   '*'
+	call	LCD_Send_Byte_D
+	movlw   0x3
+	call    LCD_Write_Hex
+	movlw   '='
+	call	LCD_Send_Byte_D
 	return
 	
 LCD_Send_Byte_I		    ; Transmits byte stored in W to instruction reg

@@ -3,8 +3,7 @@
 	extern  LCD_Setup, LCD_Write_Message, LCD_Clear_Message 
 	extern  LCD_Display_digits, LCD_Write_Hex
 	extern  RTCC_Setup, RTCC_Alarm
-	extern  pwm0
-	global  tens
+	extern  pwm0, pwm_stop
 	
 acs0	udata_acs   ; reserve data space in access ram
 acs1    udata_acs
@@ -32,16 +31,15 @@ setup	bcf	EECON1, CFGS	; point to Flash program memory
 	call	LCD_Setup	; setup LCD
 	call    RTCC_Setup      ; setup Clock
 	call    RTCC_Alarm   
-	movlw   0x01     ; count from 05 to 00 (can change)
-	movwf   tens     ; move 05 to variable tens (use for waiting 10s)
 	goto	start
         
 	
 	; ******* Main programme ****************************************
 start	
 	btfsc   PIR3, RTCCIF 
-	; check RTCC flag bit, skip the next instruction if bit is 1
+	; check RTCC flag bit, skip the next instruction if bit is 0
 	call    pwm0
+	call    pwm_stop  ; no operation in this subroutine 
         call    LCD_Display_digits
 
 	; a delay subroutine if you need one, times around loop in delay_count

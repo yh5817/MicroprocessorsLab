@@ -1,7 +1,7 @@
 #include p18f87k22.inc
       
-    global  wait_press
-    extern  pwm1, tens
+    global  wait_press, wait_10
+    extern  pwm1, pwm_stop
 
 acs0	    udata_acs  
 row   res 1
@@ -9,24 +9,25 @@ col   res 1
 zero  res 1
 v_row res 1
 v_col res 1
+tens  res 1
 	    
 keypad      code
 	
-wait_press
-	movlw 0x0
-	movwf zero    ;store 0x0 in file register zero 
-	
-	call keypad_decode
-	
-	cpfslt zero, 0  ; compare zero to what is inside w, if no press happened --> loop inside the wait_press
-	goto wait_10
+wait_10 
+	movlw   0xff     ; count from 05 to 00 (can change)
+	movwf   tens     ; move 05 to variable tens (use for waiting 10s)
+s_loop  decfsz  tens     ; decrement the content in tens, skip if 0
+	call   wait_press
+	call   pwm1       ; PWM change sound, complete calculation 
 	return
 	
-
-wait_10 
-        decfsz tens  ; decrement the content in tens, skip if 0
-	bra    wait_press
-	call   pwm1       ; PWM change sound, complete calculation 
+wait_press
+	movlw 0x0
+	movwf zero
+	call keypad_decode
+	cpfseq zero, 0  ; compare v_row with zero, skip if no row press (v_row = 0)
+	bra pwm_stop
+	bra wait_press
 	return
 
 
