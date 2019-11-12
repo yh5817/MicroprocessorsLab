@@ -1,5 +1,5 @@
 ;set PWM period by writing to PR2 register
-movlw  b'11111111' 
+movlw  b'00000010' 
 movwf  PR2
 
 ;configure CCP2 control register--- CCPxCON
@@ -10,7 +10,7 @@ bsf CCP2CON CCP2M2         ; PWM mode is selected
 bsf CCP2CON CCP2M3
 
 bsf CCP2CON DC2B0          ; the least significant bits (bit0,1)of the 10-bit PWM duty cycle
-bsf CCP2CON DC2B1
+bcf CCP2CON DC2B1
 
 bcf CCP2CON P2M1           ;single output is selected
 bcf CCP2CON P2M0        
@@ -18,7 +18,7 @@ bcf CCP2CON P2M0
 
 
 ;SET duty cycle value--- CCPRxL and CCPRxH
-movlw	b'11111111'        ; bit 2-9 of PWM duty cycle
+movlw	b'11110010'        ; bit 2-9 of PWM duty cycle
 movwf CCPR2L            
 
 movlw b'00000000'
