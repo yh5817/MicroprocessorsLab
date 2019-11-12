@@ -1,0 +1,15 @@
+;set PR2 register 
+
+
+;configure CCP2 control register--- CCPxCON
+bsf CCP2CON CCP2M2         ; PWM mode is selected
+bsf CCP2CON CCP2M3
+
+bsf CCP2CON DC2B0          ; the least significant bits of the 10-bit PWM duty cycle
+bsf CCP2CON DC2B1
+
+bcf CCP2CON P2M1           ;single output is selected
+bcf CCP2CON P2M0    
+
+
+;SET duty cycle value--- CCPRxL and CCPRxH
