@@ -2,7 +2,7 @@
 
     global  LCD_Setup, LCD_Write_Message, LCD_Write_Hex
     global  LCD_Clear_Message	    
-    global  LCD_Display_digits, LCD_Display_Questions
+    global  LCD_Display_digits, LCD_Display_Questions, LCD_wakeup
     extern  year, month, day
 
 acs0    udata_acs   ; named variables in access ram
@@ -11,7 +11,7 @@ LCD_cnt_h   res 1   ; reserve 1 byte for variable LCD_cnt_h
 LCD_cnt_ms  res 1   ; reserve 1 byte for ms counter
 LCD_tmp	    res 1   ; reserve 1 byte for temporary use
 LCD_counter res 1   ; reserve 1 byte for counting through nessage
-
+ 
 acs_ovr	access_ovr
 LCD_hex_tmp res 1   ; reserve 1 byte for variable LCD_hex_tmp	
 
@@ -209,6 +209,27 @@ LCD_Line_C
 	movlw	.10		; wait 40us
 	call	LCD_delay_x4us
 	return
+	
+LCD_wakeup
+        call  LCD_Line1
+	movlw   'M'
+	call	LCD_Send_Byte_D
+	movlw   'o'
+	call	LCD_Send_Byte_D
+        movlw   'r'
+	call	LCD_Send_Byte_D
+	movlw   'n'
+	call	LCD_Send_Byte_D
+	movlw   'i'
+	call	LCD_Send_Byte_D
+	movlw   'n'
+	call	LCD_Send_Byte_D
+	movlw   'g'
+	call	LCD_Send_Byte_D
+	movlw   '!'
+	call	LCD_Send_Byte_D
+       return
+       
 	
 LCD_Send_Byte_I		    ; Transmits byte stored in W to instruction reg
 	movwf   LCD_tmp

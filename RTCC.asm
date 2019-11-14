@@ -98,16 +98,12 @@ RTCC_Alarm
     movlw  0x11
     movwf  ALRMVALH                          ; set alarm month to November
     
-    ;bcf   ALRMCFG, ALRMPTR1
-    ;bsf   ALRMCFG, ALRMPTR0
     movlw  0x14
     movwf  ALRMVALL                          ; set alarm hour to 2
     
     movlw  0x4                               
     movwf  ALRMVALH                          ; set alarm weekday to Tuesday
     
-    ;bcf   ALRMCFG, ALRMPTR1
-    ;bcf   ALRMCFG, ALRMPTR0 
     movlw  0x00
     movwf  ALRMVALL                          ; set alarm second to 30
     
@@ -123,10 +119,5 @@ RTCC_Alarm
     bsf   PIE3, RTCCIE                       ; enable RTCC interrupt
     bsf   INTCON, GIE                        ; enable all interrupt
     return
-    
-;int_1   code  0x0008
-;    btfss  PIR3, RTCCIF                      ; check if alarm triggers an interrupt
-;    retfie  FAST
-;    bcf    PIR3, RTCCIF
-;    retfie  FAST
+
     end

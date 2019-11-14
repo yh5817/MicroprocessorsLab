@@ -1,7 +1,7 @@
 #include p18f87k22.inc
       
-    global  wait_press, wait_10
-    extern  pwm1, pwm_stop
+    global  wait_press_1, wait_press_2
+    extern  pwm_stop, count2, LCD_Display_Questions, LCD_Clear_Message, LCD_wakeup
 
 acs0	    udata_acs  
 row   res 1
@@ -13,26 +13,42 @@ tens  res 1
 	    
 keypad      code
 	
-wait_10 
-	movlw   0xff     ; count from 05 to 00 (can change)
-	movwf   tens     ; move 05 to variable tens (use for waiting 10s)
-s_loop  decfsz  tens     ; decrement the content in tens, skip if 0
-	call   wait_press
-	call   pwm1       ; PWM change sound, complete calculation 
-	return
-	
-wait_press
+wait_press_1  ; 5s after alarm event 
+        call  LCD_wakeup ; wake up message 
 	movlw 0x00
 	movwf zero      ; correct column
 	
 	call keypad_decode
 
-	cpfseq zero, 0   ; compare Acol with 4
-	bra  pwm_stop
-	bra wait_press
+	cpfseq zero, 0   ; test if any key is pressed 
+	bra  pwm_stop    ; key pressed within 5s
+	movlw 0x50
+	cpfseq count2
+	bra wait_press_1
+	call LCD_Clear_Message
+	bra wait_press_2 ; no key pressed in the forst 5s
 	return
+	
+wait_press_2
+	call LCD_Display_Questions
+	call  keypad_decode
+	cpfseq zero, 0   
+	bra  keypad_check_row
+	bra wait_press_2
+	
+keypad_check_row
+	movlw    0x04
+	cpfseq   v_row  ; check if the correct row is pressed
+	bra wait_press_2
+	bra keypad_check_col
 
-
+	
+keypad_check_col
+	movlw    0x01
+	cpfseq   v_col  ; check if the correct column is pressed 
+	bra wait_press_2
+	bra     pwm_stop
+	
 keypad_decode 
       ;set up to decode column 
         movlw 0x0f

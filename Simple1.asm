@@ -3,7 +3,7 @@
 	extern  LCD_Setup, LCD_Write_Message, LCD_Clear_Message 
 	extern  LCD_Display_digits, LCD_Write_Hex
 	extern  RTCC_Setup, RTCC_Alarm
-	extern  pwm0, pwm_stop
+	extern  pwm0, pwm_stop, timer0_setup
 	global  start
 
 	
@@ -22,8 +22,7 @@ rst	code	0       ; reset vector
 
 ;pdata	code    ; a section of programme memory for storing data
 	; ******* myTable, data in programme memory, and its length *****
-;myTable data	 ""    	; message, plus carriage return
-	;constant    myTable_l=.26	; length of data
+
 
 	
 main	code
@@ -41,7 +40,7 @@ start
 	btfsc   PIR3, RTCCIF 
 	; check RTCC flag bit, skip the next instruction if bit is 0
 	call    pwm0
-
+	call    timer0_setup    ; setup timer 0
 	; a delay subroutine if you need one, times around loop in delay_count
 	;movlw	0xFF
 	;movwf	delay_count
