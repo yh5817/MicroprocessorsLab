@@ -2,8 +2,7 @@
 
     global  LCD_Setup, LCD_Write_Message, LCD_Write_Hex
     global  LCD_Clear_Message	    
-    global  LCD_Display_digits, LCD_Display_Questions, LCD_wakeup
-    extern  year, month, day
+    global  LCD_Display_digits, LCD_Display_Questions, LCD_Display_Question2, LCD_wakeup
 
 acs0    udata_acs   ; named variables in access ram
 LCD_cnt_l   res 1   ; reserve 1 byte for variable LCD_cnt_l
@@ -208,6 +207,27 @@ LCD_Line_C
 	call	LCD_Send_Byte_I
 	movlw	.10		; wait 40us
 	call	LCD_delay_x4us
+	return
+	
+LCD_Display_Question2
+	movlw   'W'
+	call	LCD_Send_Byte_D
+	movlw   'h'
+	call	LCD_Send_Byte_D
+	movlw   'a'
+	call	LCD_Send_Byte_D
+	movlw   't'
+	call	LCD_Send_Byte_D
+	movlw   ' '
+	call	LCD_Send_Byte_D
+	movlw   'd'
+	call	LCD_Send_Byte_D
+	movlw   'a'
+	call	LCD_Send_Byte_D
+	movlw   'y'
+	call	LCD_Send_Byte_D
+	movlw   '?'
+	call	LCD_Send_Byte_D
 	return
 	
 LCD_wakeup

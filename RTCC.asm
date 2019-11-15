@@ -17,7 +17,7 @@ RTCC_Setup
     bcf     ALRMCFG, ALRMEN               ; disable alarm
     
     movlb   0x0F                       
-    bcf     INTCON, GIE                   ; enable access the BSR is used to select the GPR bank (example: bsf with a=1
+    bcf     INTCON, GIE                   
     movlw   0x55                          ;erase flash programme memory 
     movwf   EECON2
     movlw   0xAA
@@ -28,7 +28,7 @@ RTCC_Setup
     clrf    ANCON2
     bcf	    TRISG, TRISG4
     bcf     PADCFG1, RTSECSEL1            ;RTCC alarm pulse is selected for RTCC  pin
-    bcf     PADCFG1, RTSECSEL0
+    bsf     PADCFG1, RTSECSEL0
     bsf	    RTCCFG, RTCOE                 ; set RTCC output enable 
 
     ;**********************************
@@ -38,32 +38,33 @@ RTCC_Setup
     bsf     RTCCFG, RTCPTR1
     bsf     RTCCFG, RTCPTR0
        
+    movlb   0x0f                          ;move 0x0f to bank select register
     movlw   0x19                           ; set year to 2019
-    movwf   RTCVALL
+    movwf   RTCVALL,BANKED
      
     bsf     RTCCFG, RTCPTR1
     bcf     RTCCFG, RTCPTR0 
-    movlw   0x07                          ; set day to 4
-    movwf   RTCVALL
+    movlw   0x15                          ; set day to 4
+    movwf   RTCVALL,BANKED
      
     movlw   0x11                           ; set month to November
-    movwf   RTCVALH
+    movwf   RTCVALH,BANKED
      
     bcf     RTCCFG, RTCPTR1
     bsf     RTCCFG, RTCPTR0 
-    movlw   0x14                           ; initial hour
-    movwf   RTCVALL
+    movlw   0x11                           ; initial hour
+    movwf   RTCVALL,BANKED
      
-    movlw   0x4                            ; set weekday 
-    movwf   RTCVALH
+    movlw   0x05                           ; set weekday 
+    movwf   RTCVALH,BANKED
      
     bcf     RTCCFG, RTCPTR1
     bcf     RTCCFG, RTCPTR0 
-    movlw   0x30                            ; set second
-    movwf   RTCVALL
+    movlw   0x00                           ; set second
+    movwf   RTCVALL,BANKED
      
-    movlw   0x04                            ; set minute 
-    movwf   RTCVALH
+    movlw   0x37                            ; set minute 
+    movwf   RTCVALH,BANKED
     ;**********************************
     ; Disable RTCC timer access
     ;**********************************
@@ -92,22 +93,22 @@ RTCC_Alarm
     bsf   ALRMCFG, ALRMPTR1
     bcf   ALRMCFG, ALRMPTR0
     
-    movlw  0x07
+    movlw  0x18
     movwf  ALRMVALL                          ; set alarm day to 5
     
     movlw  0x11
     movwf  ALRMVALH                          ; set alarm month to November
     
-    movlw  0x14
+    movlw  0x10
     movwf  ALRMVALL                          ; set alarm hour to 2
     
-    movlw  0x4                               
+    movlw  0x01                               
     movwf  ALRMVALH                          ; set alarm weekday to Tuesday
     
     movlw  0x00
     movwf  ALRMVALL                          ; set alarm second to 30
     
-    movlw  0x05
+    movlw  0x00
     movwf  ALRMVALH                          ; set alarm minute to 05
     
       
