@@ -16,10 +16,7 @@ tens        res 1
 count1      res 1
 count2      res 1
 tmpw        res 1
-      
-tables	udata	0x400   ; reserve data anywhere in RAM (here at 0x400)
-myArray res     0x80    ; reserve 128 bytes for message data
- 
+
 rst	code	0       ; reset vector
 
 goto	setup
@@ -38,15 +35,7 @@ int_low	code   0x0018
 	call    buz0
 	bcf   PIR3, RTCCIF         ;clear interrupt flag for alarm
 	retfie FAST
-	
 
-
-;pdata	code    ; a section of programme memory for storing data
-	; ******* myTable, data in programme memory, and its length *****
-
-	
-
-	
 main	code
 	; ******* Programme FLASH read Setup Code ***********************
 setup	bcf	EECON1, CFGS	; point to Flash program memory  
@@ -62,7 +51,6 @@ setup	bcf	EECON1, CFGS	; point to Flash program memory
 start	
 	
 	call    timer0_setup    ; setup timer 0
-	; a delay subroutine if you need one, times around loop in delay_count
 	call   LCD_Display_digits
 
 	btfsc   PIR3, RTCCIF 
@@ -71,9 +59,6 @@ start
 	bcf   PIR3, RTCCIF         ;clear interrupt flag for alarm	
 	
 	NOP
-	
-delay	decfsz	delay_count	; decrement until zero
-	bra delay
 	
 	bra start
 
