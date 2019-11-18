@@ -2,24 +2,12 @@
 
     global buz0, buz_stop
     extern wait_press_1, LCD_Clear_Message, LCD_Display_Questions
-    extern start
-    global timer0_setup, count2
+    extern start, count1, count2
+    global timer0_setup
     
 acs0    udata_acs	    ; named variables in access ram
-count1  res  1              ; reserve one byte for count1
-count2  res  1              ; reserve one byte for count2
   
 buz    code    
-int_hi  code 0x0008             ; setting up interrupt 
-        btfss  INTCON, TMR0IF   ;bit test file, skip if set, check the timer0 interrupt 
-	retfie FAST  
-	btg    LATB, RB6        ;bit toggle f
-	decf   count1           ;every interrupt event decrements count 1, 
-	movlw  0x00
-	cpfsgt  count1          ; when count1 decrements to 00       
-	incf    count2          ; count2 increments 1
-	bcf    INTCON,TMR0IF     ;clear interrupt flag
-	retfie FAST              ;fast return from interrupt 
 	
 timer0	code
 timer0_setup	
@@ -50,16 +38,16 @@ buzzer_on
         return
 	
 buz_stop ; stop buzzer
-    bcf   PIR3, RTCCIF         ;clear interrupt flag for alarm
     call  LCD_Clear_Message 
     call  buzzer_off
-    goto  start
-    
+    ;goto  start
+    return
     
 buz0 ; alarm event routinw 
     call buzzer_on
     call LCD_Clear_Message
     call wait_press_1
+    call buz_stop
     return
 
     end

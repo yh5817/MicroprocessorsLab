@@ -1,6 +1,6 @@
 #include p18f87k22.inc
       
-    global  wait_press_1, wait_press_2
+    global  wait_press_1
     extern  buz_stop, count2, LCD_Display_Questions, LCD_Clear_Message, LCD_wakeup, LCD_Display_Question2
 
 acs0	    udata_acs  
@@ -14,6 +14,9 @@ day   res 1                    ; reserve one byte for weekday
 keypad      code
 	
 wait_press_1                   ; 5s after alarm event 
+        clrf    LATF           ; test actural wating time 
+	bcf     TRISF, TRISF4
+	btg     LATF, RF4
         call  LCD_wakeup       ; wake up message 
 	movlw 0x00
 	movwf zero           
@@ -21,15 +24,16 @@ wait_press_1                   ; 5s after alarm event
 	call keypad_decode
 
 	cpfseq zero, 0         ; test if any key is pressed, if pressed, w /= 0
-	bra  buz_stop          ; key pressed within 5s
-	movlw 0x50             ; wait for 5s
-	cpfseq count2
+	return
+	; key pressed within 5s
+	movlw 0x4C            ; wait for 5s
+	cpfsgt count2
 	bra wait_press_1
 	call LCD_Clear_Message
 	bra wait_press_2       ; no key pressed in the first 5s
-	return
 	
 wait_press_2                   ; calculation question routine 
+	btg  LATF, RF4
 	call LCD_Display_Questions
 	call  keypad_decode
 	cpfseq zero, 0   
@@ -53,11 +57,6 @@ keypad_check_col
 	
 	
 wait_press_3
-	call  check_sunday      
-	call  keypad_decode 
-	cpfseq zero, 0
-	bra   check_weekday_13
-	bra   wait_press_3
 
 check_sunday                    ; check if today is sunday, if sunday, alarm stop 
 	movlb   0x0f            ; move 0x0f to bank select register
@@ -65,18 +64,20 @@ check_sunday                    ; check if today is sunday, if sunday, alarm sto
         bsf     RTCCFG, RTCPTR0 
 	movff   RTCVALH, day    ; weekday
 	movlw   0x00
-	cpfsgt  day
-	bra     buz_stop
-	nop
+	cpfsgt  day        
 	return
-		 
+	
+	call  keypad_decode 
+	cpfseq zero, 0
+	bra   check_weekday_13
+	bra   wait_press_3	
+	
 check_weekday_13
 	movlw   0x01
 	cpfseq  v_row
 	bra     check_weekday_46
 	bra     check_WKD_13col
 	
-
 check_weekday_46
 	movlw   0x02
 	cpfseq  v_row
@@ -87,7 +88,7 @@ check_WKD_13col
 	 movf   day, w
 	 cpfseq  v_col
 	 bra  wait_press_3
-         bra     buz_stop
+        return
 	 
 check_WKD_46col
 	 movlw  0x01
@@ -98,9 +99,9 @@ check_WKD_46col
 	 
 	 cpfseq  v_col
 	 bra  wait_press_3
-	 bra  buz_stop
-	
 
+	 return
+;sub routine keypad_decode
 keypad_decode 
       ;set up to decode column 
         movlw 0x0f
