@@ -23,17 +23,16 @@ wait_press_1                   ; 5s after alarm event
 	
 	call keypad_decode
 
-	cpfseq zero, 0         ; test if any key is pressed, if pressed, w /= 0
+	cpfseq zero, 0         ; test if any key is pressed, if not pressed, w register will have a 0 stored
 	return
 	; key pressed within 5s
 	movlw 0x4C            ; wait for 5s
-	cpfsgt count2
+	cpfsgt count2         ;compare value stored in count2, if count2 is > ox4C meaning 5s time has passed
 	bra wait_press_1
 	call LCD_Clear_Message
 	bra wait_press_2       ; no key pressed in the first 5s
 	
 wait_press_2                   ; calculation question routine 
-	btg  LATF, RF4
 	call LCD_Display_Questions
 	call  keypad_decode
 	cpfseq zero, 0   
