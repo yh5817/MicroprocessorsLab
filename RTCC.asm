@@ -18,7 +18,7 @@ RTCC_Setup
     
     movlb   0x0F                       
     bcf     INTCON, GIE                   
-    movlw   0x55                          ;erase flash programme memory 
+    movlw   0x55                          ;erase flash programme memory, sequence needed in order to change RTCWREN bit
     movwf   EECON2
     movlw   0xAA
     movwf   EECON2
@@ -27,8 +27,8 @@ RTCC_Setup
 	 
     clrf    ANCON2
     bcf	    TRISG, TRISG4
-    bcf     PADCFG1, RTSECSEL1            ;RTCC second for RTCC  pin
-    bcf     PADCFG1, RTSECSEL0
+    bcf     PADCFG1, RTSECSEL1            ;RTCC second clock is selected for RTCC  pin
+    bsf     PADCFG1, RTSECSEL0
     bsf	    RTCCFG, RTCOE                 ; set RTCC output enable 
 
     ;**********************************
@@ -52,22 +52,22 @@ RTCC_Setup
      
     bcf     RTCCFG, RTCPTR1
     bsf     RTCCFG, RTCPTR0 
-    movlw   0x12                           ; initial hour
+    movlw   0x12                           ; set hour to 12
     movwf   RTCVALL,BANKED
      
-    movlw   0x05                           ; set weekday 
+    movlw   0x05                           ; set weekday to Friday
     movwf   RTCVALH,BANKED
      
     bcf     RTCCFG, RTCPTR1
     bcf     RTCCFG, RTCPTR0 
-    movlw   0x00                           ; set second
+    movlw   0x00                           ; set second to 0
     movwf   RTCVALL,BANKED
      
-    movlw   0x53                          ; set minute 
+    movlw   0x53                          ; set minute tp 53
     movwf   RTCVALH,BANKED
     
-    movlw   b'01111111'
-    movwf   RTCCAL,BANKED                    ; RTCC calibration register, add four RTC clock pulses every minute
+    movlw   b'00000000'
+    movwf   RTCCAL,BANKED                    ; RTCC calibration register do not use
     ;**********************************
     ; Disable RTCC timer access
     ;**********************************
@@ -79,15 +79,16 @@ RTCC_Setup
     return
     
 RTCC_Alarm
-    bcf   RTCCFG, RTCSYNC                   
-    
+    bcf   RTCCFG, RTCSYNC                   ;RTCVALH,RTCVALL and ALCFGRPT registers 
+                                            ;can be read without concern over a rollover ripple
+					    
     bsf   ALRMCFG, ALRMEN                   ; Enable alarm
     bsf   ALRMCFG, CHIME                    ; Enable chime 
     
-    bcf   ALRMCFG, AMASK0
+    bcf   ALRMCFG, AMASK0                   ;set the alarm to once a day 0110
     bsf   ALRMCFG, AMASK1
-    bcf   ALRMCFG, AMASK2
-    bcf   ALRMCFG, AMASK3                   ; set every ten minutes
+    bsf   ALRMCFG, AMASK2
+    bcf   ALRMCFG, AMASK3                  
     
      ;**********************************
     ; write to the Alarm Value Register 
@@ -96,39 +97,30 @@ RTCC_Alarm
     bsf   ALRMCFG, ALRMPTR1
     bcf   ALRMCFG, ALRMPTR0
     
-    movlb  0x0f
+    movlb  0x0f                                     ;select bank starting from address 0x0f
     movlw  0x15
-    movwf  ALRMVALL,BANKED                          ; set alarm day to 5
+    movwf  ALRMVALL,BANKED                          ; set alarm day to 15
     
     movlw  0x11
     movwf  ALRMVALH,BANKED                         ; set alarm month to November
     
     movlw  0x12
-    movwf  ALRMVALL,BANKED                          ; set alarm hour to 2
+    movwf  ALRMVALL,BANKED                          ; set alarm hour to 12
     
     movlw  0x05                               
-    movwf  ALRMVALH,BANKED                          ; set alarm weekday to Tuesday
+    movwf  ALRMVALH,BANKED                          ; set alarm weekday to Friday
     
     movlw  0x10
-    movwf  ALRMVALL,BANKED                          ; set alarm second to 30
+    movwf  ALRMVALL,BANKED                          ; set alarm second to 10
     
     movlw  0x53
-    movwf  ALRMVALH,BANKED                          ; set alarm minute to 05
+    movwf  ALRMVALH,BANKED                          ; set alarm minute to 053
     
       
     movlw  b'00000000'  
-    movwf  ALRMRPT,BANKED                           ;REPEAT ALARM for 255 more times 
-    ;bcf ALRMRPT, ARPT0
-    ;bcf ALRMRPT, ARPT1
-    ;bcf ALRMRPT, ARPT2
-    ;bcf ALRMRPT, ARPT3
-    ;bcf ALRMRPT, ARPT4
-    ;bcf ALRMRPT, ARPT5
-    ;bcf ALRMRPT, ARPT6
-    ;bcf ALRMRPT, ARPT7
+    movwf  ALRMRPT,BANKED                           ;REPEAT ALARM for 0 more times 
+
     
-    clrf  TRISD                               ; set PORTD as all outputs
-    bcf	  LATD, ACCESS
     bsf   PIE3, RTCCIE                       ; enable RTCC interrupt
     bsf   INTCON, GIE                        ; enable all interrupt
     return
