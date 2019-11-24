@@ -259,7 +259,7 @@ LCD_Send_Byte_I		    ; Transmits byte stored in W to instruction reg
 	swapf   LCD_tmp,W   ; swap nibbles, high nibble goes first
 	andlw   0x0f	    ; select just low nibble
 	iorwf	LATB, F
-	;movwf   LATB	    ; output data bits to LCD
+	
 	bcf	LATB, LCD_RS	; Instruction write clear RS bit
 	call    LCD_Enable  ; Pulse enable Bit 
 	movlw	0xf0
@@ -267,7 +267,7 @@ LCD_Send_Byte_I		    ; Transmits byte stored in W to instruction reg
 	movf	LCD_tmp,W   ; swap nibbles, now do low nibble
 	andlw   0x0f	    ; select just low nibble
 	iorwf	LATB, F
-	;movwf   LATB	    ; output data bits to LCD
+	
 	bcf	LATB, LCD_RS    ; Instruction write clear RS bit
         call    LCD_Enable  ; Pulse enable Bit 
 	bsf	INTCON,GIE
@@ -281,7 +281,7 @@ LCD_Send_Byte_D		    ; Transmits byte stored in W to data reg
 	swapf   LCD_tmp,W   ; swap nibbles, high nibble goes first
 	andlw   0x0f	    ; select just low nibble
 	iorwf	LATB, F
-	;movwf   LATB	    ; output data bits to LCD
+	
 	bsf	LATB, LCD_RS	; Data write set RS bit
 	call    LCD_Enable  ; Pulse enable Bit 
 	movlw	0xf0
@@ -289,7 +289,7 @@ LCD_Send_Byte_D		    ; Transmits byte stored in W to data reg
 	movf	LCD_tmp,W   ; swap nibbles, now do low nibble
 	andlw   0x0f	    ; select just low nibble
 	iorwf	LATB, F
-	;movwf   LATB	    ; output data bits to LCD
+	
 	bsf	LATB, LCD_RS    ; Data write set RS bit	    
         call    LCD_Enable  ; Pulse enable Bit 
 	movlw	.10	    ; delay 40us
