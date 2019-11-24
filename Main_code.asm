@@ -28,13 +28,6 @@ int_hi  code 0x0008             ; setting up interrupt
 
 	bcf    INTCON,TMR0IF     ;clear interrupt flag
 	retfie FAST              ;fast return from interrupt 
-	
-int_low	code   0x0018
-	btfsc   PIR3, RTCCIF 
-	; check RTCC flag bit, skip the next instruction if bit is 0
-	call    buz0
-	bcf   PIR3, RTCCIF         ;clear interrupt flag for alarm
-	retfie FAST
 
 main	code
 	; ******* Programme FLASH read Setup Code ***********************
@@ -42,8 +35,8 @@ setup	bcf	EECON1, CFGS	; point to Flash program memory
 	bsf	EECON1, EEPGD 	; access Flash program memory
 	call	LCD_Setup	; setup LCD
 	call    RTCC_Setup      ; setup Clock
-	call    RTCC_Alarm   
-	bcf     PIR3, RTCCIF 
+	call    RTCC_Alarm      ;setup Alarm
+	bcf     PIR3, RTCCIF    ;clear the RTCC interrupt flag 
 	goto	start
         
 	
@@ -63,12 +56,12 @@ start
 	bra start
 
 update_counts
-	btg    LATB, RB6        ;bit toggle f
-	decf   count1           ;every interrupt event decrements count 1, 
+	btg    LATB, RB6        ;toggle RB6 (buzzer)
+	decf   count1           ;every interrupt event decrements count1 by 1, 
 	movwf  tmpw
 	movlw  0x00
 	cpfsgt  count1          ; when count1 decrements to 00       
-	incf    count2          ; count2 increments 1
+	incf    count2          ; count2 increments by 1
 	movf   tmpw, w
 	return
 	
